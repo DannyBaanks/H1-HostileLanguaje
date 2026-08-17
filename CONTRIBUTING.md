@@ -54,4 +54,4 @@ Incluye:
 
 ---
 
-**Nota**: H1 es investigación (ISyCo experiment E25 base). No hay promesa de estabilidad API.
+**Nota**: H1 es investigación (experiment E25 base). No hay promesa de estabilidad API.
