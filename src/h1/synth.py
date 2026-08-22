@@ -49,7 +49,7 @@ def round_trip_test(
     para los primeros len(target) pasos ejecutados (o max_trace_len si se especifica).
     Returns: (ok, source_program, effective_program_from_trace)
     """
-    from interpreter import run
+    from .interpreter import run
 
     source = synthesize_program(target, k)
     state = run(source, k=k, inputs=inputs, max_steps=10000)

@@ -1,18 +1,19 @@
 """H1 Hostile Language — Tests."""
 
-import sys
-
-sys.path.insert(0, "workspace/experiments/H1_hostile_language")
-
-# Import the modules to ensure they work as modules
-from interpreter import run, trace_to_string
-from isa import Instruction, Opcode, derive_opcode, flat_program, unflat_program
-from synth import (
+# Exercise the public package layout, rather than the retired experiment path.
+from h1 import (
+    Instruction,
+    Opcode,
     build_cat_program,
     build_echo_program,
     build_hello_world_k0,
+    derive_opcode,
+    flat_program,
+    run,
     round_trip_test,
     synthesize_program,
+    trace_to_string,
+    unflat_program,
 )
 
 
