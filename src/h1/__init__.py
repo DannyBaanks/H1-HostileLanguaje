@@ -38,6 +38,17 @@ from .synth import (
     synthesize_from_effective,
     synthesize_program,
 )
+from .harmonic import synthesize_stationary_program
+from .classic_programs import (
+    build_hello_world,
+    build_cat,
+    build_truth_machine,
+    build_adder,
+    build_digital_root,
+    build_quine,
+    preload_hello_world_memory,
+    preload_quine_memory,
+)
 
 __version__ = "0.1.0"
 __all__ = [
@@ -63,4 +74,13 @@ __all__ = [
     "build_cat_program",
     "build_echo_program",
     "preload_memory_for_hello",
+    "synthesize_stationary_program",
+    "build_hello_world",
+    "build_cat",
+    "build_truth_machine",
+    "build_adder",
+    "build_digital_root",
+    "build_quine",
+    "preload_hello_world_memory",
+    "preload_quine_memory",
 ]

@@ -1,7 +1,6 @@
 # H1 — Lenguaje Hostil No-Markoviano (HK-7)
 
 > **Estado**: Implementado (intérprete + sintetizador)  
-> **Ubicación**: `workspace/experiments/H1_hostile_language/`
 
 ## Resumen
 
@@ -51,20 +50,51 @@ op_escrito = (op_deseado - Σ H) mod 7
 
 Con deriva EFECTIVA esto es **determinista O(n)**: cada paso tiene solución única porque `H` ya se conoce (se construye izquierda→derecha).
 
+## Síntesis de Bucles Estacionarios (Teorema del Bucle Armónico)
+
+En bucles (`cat`, `adder`, `truth_machine`), una instrucción en la segunda pasada se enfrenta a un historial `H` diferente al de la primera vuelta. Para evitar que el bucle diverja, `src/h1/harmonic.py` implementa el **Teorema del Bucle Estacionario**:
+
+1. **Condición de Contorno Cíclica:**
+   En régimen estacionario de período $L \ge k$, el historial antes de ejecutar la instrucción $j$ siempre coincide con las $k$ instrucciones previas en el ciclo:
+   $$\Delta_{cíclico}(j) = \sum_{i=1}^k e_{(j-i) \pmod L} \pmod 7$$
+2. **Opcode Escrito Resonante:**
+   $$w_j = (e_j - \Delta_{cíclico}(j)) \pmod 7$$
+3. **Preámbulo de Sincronización:**
+   Antes de entrar al bucle, una secuencia de sincronización prepara el historial de $k$ pasos para que coincida exactamente con la cola del bucle $[e_{L-k}, \dots, e_{L-1}]$.
+
+El bucle se convierte en un **atractor periódico exacto en $\mathbb{Z}_7$** que puede ejecutarse un número arbitrario de iteraciones sin sufrir desfasaje.
+
+## Corpus Canónico de Demostración (Los 6 Programas de Malbolge)
+
+Implementados en `src/h1/classic_programs.py` y verificados bajo la suite de pruebas:
+
+| Programa | Archivo | Descripción | k Verificados |
+|---|---|---|:---:|
+| **1. Hello World** | `hello_world_k*.h1` | Imprime `"Hello, World!\n"` y se detiene limpiamente. | 0, 1, 3 |
+| **2. Cat** | `cat_k*.h1` | Bucle armónico que lee bytes hasta EOF (0) y los retransmite. | 0, 1, 3 |
+| **3. Truth Machine** | `truth_machine_k*.h1` | Entrada 0 $\to$ imprime 0 y HALT. Entrada 1 $\to$ bucle armónico infinito imprimiendo 1. | 0, 1 |
+| **4. Adder** | `adder_k*.h1` | Lee operandos $A$ y $B$, decrementa $B$ e incrementa $A$, emite $A + B$ y HALT. | 0, 1, 3 |
+| **5. Digital Root** | `digital_root_k*.h1` | Calcula la raíz digital iterada $1 + ((N - 1) \pmod 9)$ (0 si $N = 0$). | 0, 1 |
+| **6. Quine** | `quine_k*.h1` | Emite su propia representación de bytecode bit por bit idéntica. | 0, 1 |
+
+Generar el corpus completo:
+```bash
+python examples/build_classic_suite.py
+```
+
 ## Archivos
 
 ```
 H1_hostile_language/
-├── isa.py              # ISA, encoding, derive_opcode
-├── interpreter.py      # Máquina, step(), run(), trazas completas
-├── synth.py            # Sintetizador, round-trip, programas built-in
-├── tests/
-│   └── test_h1.py      # 12 tests: k=0 base, round-trip k∈{0,1,3,7,16}, deriva feedback, cat/echo
-└── programs/
-    ├── build_examples.py
-    ├── hello_k0.h1 .. hello_k16.h1
-    ├── cat_k0.h1 .. cat_k3.h1
-    └── echo_k0.h1 .. echo_k3.h1
+├── src/h1/
+│   ├── isa.py            # ISA, encoding, derive_opcode
+│   ├── interpreter.py    # Máquina, step(), run(), trazas completas
+│   └── synth.py          # Sintetizador, round-trip
+├── examples/
+│   ├── build_examples.py
+│   └── hello_k3.h1       # programa de ejemplo (los demás se regeneran)
+└── tests/
+    └── test_h1.py        # 12 tests: k=0 base, round-trip k∈{0,1,3,7,16}, deriva feedback, cat/echo
 ```
 
 ## Ejecución
@@ -74,12 +104,12 @@ H1_hostile_language/
 python tests/test_h1.py
 
 # Generar ejemplos
-python programs/build_examples.py
+python examples/build_examples.py
 
-# Uso directo
-from isa import Instruction, Opcode
-from synth import build_hello_world_k0, synthesize_program
-from interpreter import create_machine, step, preload_memory_for_hello
+# Uso directo (con el paquete instalado: pip install -e .)
+from h1.isa import Instruction, Opcode
+from h1.synth import build_hello_world_k0, synthesize_program
+from h1.interpreter import create_machine, step, preload_memory_for_hello
 
 target = build_hello_world_k0()
 source = synthesize_program(target, k=3)

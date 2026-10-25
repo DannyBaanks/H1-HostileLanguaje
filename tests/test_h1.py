@@ -1,19 +1,32 @@
 """H1 Hostile Language — Tests."""
 
 import sys
+from pathlib import Path
 
-sys.path.insert(0, "workspace/experiments/H1_hostile_language")
+ROOT = Path(__file__).resolve().parent.parent
+if str(ROOT / "src") not in sys.path:
+    sys.path.insert(0, str(ROOT / "src"))
 
-# Import the modules to ensure they work as modules
-from interpreter import run, trace_to_string
-from isa import Instruction, Opcode, derive_opcode, flat_program, unflat_program
-from synth import (
-    build_cat_program,
-    build_echo_program,
-    build_hello_world_k0,
-    round_trip_test,
-    synthesize_program,
-)
+try:
+    from h1.interpreter import run, trace_to_string
+    from h1.isa import Instruction, Opcode, derive_opcode, flat_program, unflat_program
+    from h1.synth import (
+        build_cat_program,
+        build_echo_program,
+        build_hello_world_k0,
+        round_trip_test,
+        synthesize_program,
+    )
+except ImportError:
+    from interpreter import run, trace_to_string
+    from isa import Instruction, Opcode, derive_opcode, flat_program, unflat_program
+    from synth import (
+        build_cat_program,
+        build_echo_program,
+        build_hello_world_k0,
+        round_trip_test,
+        synthesize_program,
+    )
 
 
 def test_k0_is_base_machine():

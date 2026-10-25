@@ -1,14 +1,25 @@
 """H1 Hostile Language — Programas de ejemplo sintetizados."""
 import sys
-import os
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from pathlib import Path
 
-from isa import Instruction, Opcode, flat_program
-from synth import (
-    synthesize_program, build_hello_world_k0, build_cat_program, build_echo_program,
-    preload_memory_for_hello
-)
-from interpreter import create_machine, step
+ROOT = Path(__file__).resolve().parent.parent
+if str(ROOT / "src") not in sys.path:
+    sys.path.insert(0, str(ROOT / "src"))
+
+try:
+    from h1.isa import Instruction, Opcode, flat_program
+    from h1.synth import (
+        synthesize_program, build_hello_world_k0, build_cat_program, build_echo_program,
+        preload_memory_for_hello
+    )
+    from h1.interpreter import create_machine, step
+except ImportError:
+    from isa import Instruction, Opcode, flat_program
+    from synth import (
+        synthesize_program, build_hello_world_k0, build_cat_program, build_echo_program,
+        preload_memory_for_hello
+    )
+    from interpreter import create_machine, step
 
 
 def save_program(name: str, prog, k: int):
