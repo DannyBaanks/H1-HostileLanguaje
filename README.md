@@ -82,6 +82,34 @@ Generar el corpus completo:
 python examples/build_classic_suite.py
 ```
 
+## 🌌 H1Art — Geometría No-Markoviana y Visualización con FLOW
+
+La dinámica de realimentación no-markoviana de H1 no es una simple traza secuencial: el vector de estado $\vec{h} = (h_{t-k+1}, \dots, h_t) \in (\mathbb{Z}/7\mathbb{Z})^k$ habita de forma natural sobre un **hiper-toroide discreto $k$-dimensional $\mathbb{T}^k$** de $7^k$ estados.
+
+Con el motor de renderizado de **FLOW**, proyectamos las trayectorias de ejecución, atractores y escaneos de memoria de H1:
+
+| Toroide 3D de Estados $(\mathbb{Z}_7)^3$ (Cat $k=3$) | Escaneo de Memoria del Quine ($k=1$) |
+|:---:|:---:|
+| ![H1 3D Torus](assets/h1_cat_torus_3d.gif) | ![H1 Quine Scan](assets/h1_quine_scan.gif) |
+| **Atractor periódico en el 3-toro de 343 nodos** | **Cabezal auto-modificante emitiendo su código** |
+
+| FLOW Cinematic (Cat $k=3$) | FLOW Orbit (Cat $k=3$) |
+|:---:|:---:|
+| ![H1 Cat Cinematic](assets/h1_cat_flow_cinematic.gif) | ![H1 Cat Orbit](assets/h1_cat_flow_orbit.gif) |
+| **Estelas cinemáticas en el plano de estados** | **Mapeo orbital circular de memoria** |
+
+### Espacio de Fases Cilíndrico: $(PC, \Delta \in \mathbb{Z}_7)$
+Trayectorias y ciclos límite de Cat y Adder en el cilindro discreto de fases:
+
+<p align="center">
+  <img src="assets/h1_phase_space.png" alt="H1 Phase Space" width="620px">
+</p>
+
+Generar todas las visualizaciones:
+```bash
+python visualizer/render_h1_art.py
+```
+
 ## Archivos
 
 ```
