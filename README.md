@@ -110,19 +110,60 @@ Generar todas las visualizaciones:
 python visualizer/render_h1_art.py
 ```
 
+## 🔬 Teoría y Experimentos Avanzados: Levantamiento de Estados, Automodificación y Estabilidad
+
+El reporte completo con derivaciones matemáticas y evidencia empírica se encuentra en [`experiments/HOSTILE_EXPERIMENTS_REPORT.md`](experiments/HOSTILE_EXPERIMENTS_REPORT.md).
+
+### 1. El Teorema del Levantamiento Markoviano (State-Space Lifting)
+- **Falsación Markoviana Clásica:** Si un observador modela a H1 sobre el espacio de estados clásico $\mathcal{S}_{classical} = (PC, M)$, el sistema **no es markoviano**. Dos ejecuciones con idéntico PC, idéntica memoria e idéntico programa bifurcan hacia instrucciones efectivas completamente distintas ante historiales previos disjuntos:
+  - Con $H_A = [0]$ ($\Delta = 0$): la instrucción escrita `HALT 10 0` ejecuta **`HALT`** inmediatamente.
+  - Con $H_B = [1]$ ($\Delta = 1$): la misma instrucción ejecuta **`INC 10`** y continúa su ejecución activa.
+- **Levantamiento Formal:** Al incluir los últimos $k$ opcodes efectivos dentro del estado, definimos el **espacio de estados ampliado**:
+  $$\mathcal{S}^* = (PC, M, \mathbf{h}_k) \in \mathbb{N} \times (\mathbb{Z}_{256})^{256} \times (\mathbb{Z}_7)^k$$
+  Sobre $\mathcal{S}^*$, el operador de transición dinámico $T: \mathcal{S}^*_t \mapsto \mathcal{S}^*_{t+1}$ es **estrictamente determinista y markoviano de orden 1**.
+
+<p align="center">
+  <img src="experiments/history_bifurcation.png" alt="Bifurcación por Historial" width="620px">
+</p>
+
+### 2. Estabilidad Asintótica de Bucles Armónicos (10,000 Iteraciones)
+Sometido a prueba de estrés sobre 10,000 caracteres de entrada (40,003 pasos), el bucle estacionario de `Cat (k=1)` demostró una tasa de deriva de fase de **0.0000000000**, manteniendo de forma inmutable su ciclo límite periódico $\Delta(t) \in [4, 5, 3, 6]$:
+
+<p align="center">
+  <img src="experiments/harmonic_stability_10k.png" alt="Estabilidad Armónica" width="620px">
+</p>
+
+### 3. Automodificación Von Neumann como Mecanismo de Punteros Dinámicos
+Aunque la separación `PROGRAM_OFFSET = 64` aísla los datos iniciales, el intérprete permite lecturas y escrituras sin restricción en todo el espacio de memoria. Dado que la ISA de H1 **carece de direccionamiento indirecto** (`@a` o `[ [a] ]`):
+> **La automodificación del operando de la instrucción en memoria (`INC 65` o `INC 68`) es el ÚNICO mecanismo de H1 para implementar punteros dinámicos y recorrer estructuras de datos indexadas.**
+
+### 4. Taxonomía de Quines
+- **Quine Asistida por Precarga (`preload_quine_memory`):** Almacena el bloque de reflexión en memoria de datos ($0..63$) desacoplado del puntero de código, logrando reproducción bit a bit idéntica (PASS).
+- **Quine Autónoma Von Neumann:** Análisis de punto fijo algebraico mínimo ($A=8, B=9 \implies L=24$ instrucciones, 72 bytes). Al barrer la memoria de código, el puntero colisiona con el byte 58 (`mem[122]`), documentando el dilema del observador modificado en tiempo de ejecución.
+
+---
+
 ## Archivos
 
 ```
 H1_hostile_language/
 ├── src/h1/
 │   ├── isa.py            # ISA, encoding, derive_opcode
-│   ├── interpreter.py    # Máquina, step(), run(), trazas completas
-│   └── synth.py          # Sintetizador, round-trip
-├── examples/
-│   ├── build_examples.py
-│   └── hello_k3.h1       # programa de ejemplo (los demás se regeneran)
+│   ├── interpreter.py    # Máquina Von Neumann, step(), run(), trazas completas
+│   ├── harmonic.py       # Teorema del bucle estacionario armónico
+│   ├── classic_programs.py # Los 6 programas canónicos de Malbolge
+│   └── synth.py          # Sintetizador lineal O(n)
+├── experiments/
+│   ├── run_hostile_experiments.py   # Suite de experimentación formal
+│   ├── HOSTILE_EXPERIMENTS_REPORT.md # Reporte científico exhaustivo
+│   ├── history_bifurcation.png      # Gráfico de bifurcación no markoviana
+│   └── harmonic_stability_10k.png   # Gráfico del ciclo límite asintótico
+├── visualizer/
+│   └── render_h1_art.py  # Renderizador FLOW & H1Art (GIFs y proyecciones 3D)
 └── tests/
-    └── test_h1.py        # 12 tests: k=0 base, round-trip k∈{0,1,3,7,16}, deriva feedback, cat/echo
+    ├── test_h1.py        # Tests del lenguaje base
+    ├── test_classic_programs.py     # Tests del corpus de 6 programas
+    └── test_markov_and_self_modification.py # Tests de no-markovianidad y automodificación
 ```
 
 ## Ejecución
